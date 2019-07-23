@@ -1,0 +1,75 @@
+@model ActConnect
+
+<div class="header2">
+    <h1>@ViewBag.User.FirstName's Activity Center</h1>
+    <a href="/logout">Logout</a>
+</div>
+
+<hr>
+
+<table class="table">
+    <thead class="thead-dark ">
+        <tr>
+            <th scope="col">Activity Name</th>
+            <th scope="col">Date and Time</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Event Coordinator</th>
+            <th scope="col">No. Participants</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var i in ViewBag.AllAct){
+            DateTime CurrentTime = DateTime.Now;
+    if(i.ActDate < CurrentTime)
+    {
+    }else
+    {
+        <tr>
+            <td><a href="/detail/@i.ActivityId">@i.Title</a></td>
+            <td>@i.ActDate.ToString("MM/dd") at @i.Time</td>
+            @if(i.Duration <= 60) { <td>@i.Duration Minutes</td>
+                }
+                else if(i.Duration <= 1440) 
+                { 
+                    int duration=i.Duration/60; <td>@duration Hour(s)</td>
+                    }
+                    else
+                    {
+                    int duration = i.Duration/1440;
+                    <td>@duration Day(s)</td>
+                    }
+                    <td>@i.Coordinator.FirstName</td>
+                    <td>@i.ActtoUser.Count</td>
+                    <td>@if(i.ActtoUser.Count == 0){
+                        <a href="/joinact/@i.ActivityId/@ViewBag.User.UserId">Join</a>
+                        }
+                        @if(i.ActtoUser.Count > 0)
+                        {
+                        int resert = 0;
+                        bool rsvp = false;
+                        @foreach(var y in i.ActtoUser){
+                        @if(y.UserId == ViewBag.User.UserId){
+                        rsvp = true;
+                        resert = y.ActConnectId;
+                        }
+                        }
+                        @if(rsvp == true){
+                        <a href="/leaveact/@resert">Leave</a>
+                        }
+                        @if(rsvp == false){
+                        <a href="/joinact/@i.ActivityId/@ViewBag.User.UserId">RSVP</a>
+                        }
+                        }
+
+                        @if(ViewBag.User.UserId == @i.UserId){
+                        <a> | </a> <a href="/delete/@i.ActivityId">Remove Post</a>
+                        }
+                    </td>
+        </tr>
+                }
+        }
+    </tbody>
+</table>
+
+<a href="/addactivity"><button type="button" class="btn btn-primary">Add New Activity!</button></a>
